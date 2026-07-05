@@ -1,13 +1,16 @@
 import requests
 import json
-import os
-from dotenv import load_dotenv
 from datetime import date
-from airflow.decorators import task
 
-load_dotenv(dotenv_path='././.env')
-API_KEY = os.getenv('API_KEY')
-CHANNEL_HANDLE = "MrBeast"
+# import os
+# from dotenv import load_dotenv
+# load_dotenv(dotenv_path='./.env')
+
+from airflow.decorators import task
+from airflow.models import Variable
+
+API_KEY = Variable.get('API_KEY')
+CHANNEL_HANDLE = Variable.get("CHANNEL_HANDLE")
 maxResults = 50
 
 @task
@@ -54,12 +57,13 @@ def get_video_ids(playlist_Id):
 
     except requests.exceptions.RequestException as e:
         raise e
+
 @task
 def batch_list(video_id_lst, batch_size):
     for videoId in range(len(video_id_lst), batch_size):
         yield video_id_lst[videoId:videoId + batch_size]
 
-@task
+
 def extract_video_data(video_ids):
     extracted_data = []
 
